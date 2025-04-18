@@ -11,6 +11,9 @@ import {
   InputAdornment,
 } from "@mui/material";
 import InsertLinkIcon from "@mui/icons-material/InsertLink";
+import { useDispatch } from "react-redux";
+import { AppDispatch, useTypedSelector } from "../../redux/store";
+import { createFile } from "../../redux/userSlice";
 
 interface VideoInfo {
   title: string;
@@ -20,13 +23,20 @@ interface VideoInfo {
 }
 
 const Preview: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { user, file } = useTypedSelector((state) => state.user);
+
   const [videoUrl, setVideoUrl] = useState("");
   const [videoData, setVideoData] = useState<VideoInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+
     setIsLoading(true);
+    const data = dispatch(
+      createFile({ sourceUrl: videoUrl, userId: user?._id || "" })
+    );
     setTimeout(() => {
       setVideoData({
         title: "Amazing Nature",
@@ -59,7 +69,7 @@ const Preview: React.FC = () => {
           component="form"
           onSubmit={handleSubmit}
           sx={{
-            marginTop: !isLoading ? "22%" : '0',
+            marginTop: !isLoading ? "22%" : "0",
             display: "flex",
             alignItems: "center",
             width: "80%",
@@ -87,7 +97,7 @@ const Preview: React.FC = () => {
                   sx={{
                     borderRadius: "0 25px 25px 0",
                     height: "56px",
-                    minWidth: "100px", 
+                    minWidth: "100px",
                   }}
                 >
                   {isLoading ? "Loading..." : "Submit"}
@@ -95,7 +105,7 @@ const Preview: React.FC = () => {
               ),
               sx: {
                 borderRadius: "25px",
-                paddingRight: 0, 
+                paddingRight: 0,
               },
             }}
           />
