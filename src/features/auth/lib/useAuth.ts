@@ -6,20 +6,21 @@ import {
   createUser,
   removeUser,
 } from "../../../entities/user/model/userSlice";
+import { genres } from "../../../shared/lib/data/genresData";
 
 export const useAuth = () => {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
 
-  const [signInEmail, setSignInEmail] = useState("");
+  const [signInName, setSignInName] = useState("");
   const [signInPassword, setSignInPassword] = useState("");
   const [signUpName, setSignUpName] = useState("");
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     try {
-      await dispatch(getUser({ username: email, password })).unwrap();
+      await dispatch(getUser({ username: username, password })).unwrap();
       return true;
     } catch (error) {
       console.error("Login failed:", error);
@@ -29,7 +30,9 @@ export const useAuth = () => {
 
   const register = async (name: string, email: string, password: string) => {
     try {
-      await dispatch(createUser({ username: name, email, password })).unwrap();
+      await dispatch(
+        createUser({ username: name, email, password, genres }),
+      ).unwrap();
       return true;
     } catch (error) {
       console.error("Registration failed:", error);
@@ -43,8 +46,8 @@ export const useAuth = () => {
 
   return {
     user,
-    signInEmail,
-    setSignInEmail,
+    signInName: signInName,
+    setSignInName: setSignInName,
     signInPassword,
     setSignInPassword,
     signUpName,

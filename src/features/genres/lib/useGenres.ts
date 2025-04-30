@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { genresData } from "./genresData";
+import { genresData } from "../../../shared/lib/data/genresData";
 
 export const useGenres = () => {
   const allGenres = genresData.map((g) => ({
@@ -11,13 +11,13 @@ export const useGenres = () => {
   const [selectedGenreToAdd, setSelectedGenreToAdd] = useState("");
 
   const availableGenres = allGenres.filter(
-    (genre) => !genres.some((g) => g.segment === genre.segment)
+    (genre) => !genres.some((g) => g.segment === genre.segment),
   );
 
   const handleAddGenre = () => {
     if (selectedGenreToAdd) {
       const genreToAdd = allGenres.find(
-        (g) => g.segment === selectedGenreToAdd
+        (g) => g.segment === selectedGenreToAdd,
       );
       if (genreToAdd) {
         setGenres([...genres, genreToAdd]);

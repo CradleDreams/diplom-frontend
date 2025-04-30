@@ -444,7 +444,7 @@ const DinoGame: React.FC<DinoGameProps> = ({
           ...cloud,
           x: cloud.x - cloud.speed * (deltaTime / 16),
         }))
-        .filter((cloud) => cloud.x > -100)
+        .filter((cloud) => cloud.x > -100),
     );
 
     // Increase score and difficulty
@@ -570,7 +570,7 @@ const DinoGame: React.FC<DinoGameProps> = ({
               top: `${obstacle.top}px`,
             }}
           />
-        )
+        ),
       )}
 
       {/* Ground */}

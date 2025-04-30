@@ -24,8 +24,8 @@ export const MainLayout = () => {
   const {
     user,
     logout,
-    signInEmail,
-    setSignInEmail,
+    signInName,
+    setSignInName,
     signInPassword,
     setSignInPassword,
     signUpName,
@@ -57,7 +57,7 @@ export const MainLayout = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const success = await login(signInEmail, signInPassword);
+      const success = await login(signInName, signInPassword);
       if (success) {
         setAuthModalOpen(false);
       } else {
@@ -138,8 +138,8 @@ export const MainLayout = () => {
         error={authError}
         onSignIn={handleSignIn}
         onSignUp={handleSignUp}
-        signInEmail={signInEmail}
-        setSignInEmail={setSignInEmail}
+        signInName={signInName}
+        setSignInName={setSignInName}
         signInPassword={signInPassword}
         setSignInPassword={setSignInPassword}
         signUpName={signUpName}

@@ -29,8 +29,8 @@ interface AuthModalProps {
   error?: string;
   onSignIn: (e: React.FormEvent) => Promise<void>;
   onSignUp: (e: React.FormEvent) => Promise<void>;
-  signInEmail: string;
-  setSignInEmail: (value: string) => void;
+  signInName: string;
+  setSignInName: (value: string) => void;
   signInPassword: string;
   setSignInPassword: (value: string) => void;
   signUpName: string;
@@ -47,8 +47,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   error,
   onSignIn,
   onSignUp,
-  signInEmail,
-  setSignInEmail,
+  signInName,
+  setSignInName,
   signInPassword,
   setSignInPassword,
   signUpName,
@@ -93,12 +93,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <Box component="form" onSubmit={onSignIn}>
               <TextField
                 fullWidth
-                label="Email"
-                type="email"
+                label="Name"
                 margin="normal"
                 required
-                value={signInEmail}
-                onChange={(e) => setSignInEmail(e.target.value)}
+                value={signInName}
+                onChange={(e) => setSignInName(e.target.value)}
               />
               <TextField
                 fullWidth

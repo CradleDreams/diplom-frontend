@@ -1,15 +1,12 @@
 import axios from "axios";
-import { getToken } from "./auth";
 
 const instance = axios.create({
-  baseURL: process.env.VITE_API_URL || "http://localhost:3001/api",
+  baseURL: "http://localhost:3001",
 });
 
 instance.interceptors.request.use((config) => {
-  const token = getToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  config.headers.Authorization =
+    "Bearer " + window.localStorage.getItem("accessToken");
   return config;
 });
 
@@ -20,7 +17,7 @@ instance.interceptors.response.use(
       // Handle unauthorized
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default instance;

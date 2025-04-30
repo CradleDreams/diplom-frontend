@@ -1,65 +1,25 @@
 import React, { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   Box,
   Typography,
-  Accordion,
   AccordionSummary,
   AccordionDetails,
   Grid,
-  Card,
-  CardMedia,
-  CardContent,
   Chip,
   IconButton,
   useMediaQuery,
   useTheme,
   Container,
-  styled,
-  Button,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { motion, AnimatePresence } from "framer-motion";
-import { genresData } from "../../features/genres/lib/genresData";
-
-// Стилизованные компоненты
-const PageContainer = styled(Box)({
-  minHeight: "100vh",
-  background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
-  color: "white",
-});
-
-const GenreAccordion = styled(Accordion)(({ theme }) => ({
-  borderRadius: "12px !important",
-  overflow: "hidden",
-  marginBottom: theme.spacing(2),
-  background: "rgba(255, 255, 255, 0.05)",
-  border: "1px solid rgba(255, 255, 255, 0.1)",
-  "&:before": {
-    display: "none",
-  },
-  "&.Mui-expanded": {
-    margin: theme.spacing(2, 0),
-  },
-}));
-
-const VideoCard = styled(Card)({
-  height: "100%",
-  display: "flex",
-  flexDirection: "column",
-  cursor: "pointer",
-  transition: "all 0.3s ease",
-  background: "rgba(255, 255, 255, 0.05)",
-  color: "white",
-  border: "1px solid rgba(255, 255, 255, 0.1)",
-  "&:hover": {
-    transform: "translateY(-8px)",
-    boxShadow: "0 10px 25px rgba(0, 150, 255, 0.3)",
-    border: "1px solid rgba(0, 150, 255, 0.5)",
-  },
-});
+import { genresData } from "../../shared/lib/data/genresData";
+import { PageContainer, GenreAccordion } from "./style";
+import ViewVideoGenre from "./ui/ViewVideoGenre";
+import CardVideoGenre from "./ui/CardVideoGenre";
 
 // Все доступные жанры (основные + 8 дополнительных)
 const allGenres = [
@@ -78,12 +38,12 @@ export const Genres = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { genre: selectedGenre, videoId } = useParams();
-  const navigate = useNavigate();
+
   const [expanded, setExpanded] = useState<string | false>(
-    selectedGenre || false
+    selectedGenre || false,
   );
   const [selectedGenres, setSelectedGenres] = useState<string[]>(
-    genresData.slice(0, 3).map((g) => g.genre)
+    genresData.slice(0, 3).map((g) => g.genre),
   );
 
   const handleChange =
@@ -99,16 +59,6 @@ export const Genres = () => {
 
   const handleRemoveGenre = (genreToRemove: string) => {
     setSelectedGenres(selectedGenres.filter((g) => g !== genreToRemove));
-  };
-
-  const handleVideoClick = (videoId: string) => {
-    // Находим жанр, к которому принадлежит видео
-    const videoGenre =
-      genresData.find((genre) =>
-        genre.videos.some((video) => video.id.toString() === videoId)
-      )?.genre || "";
-
-    navigate(`/genres/${videoGenre}/${videoId}`);
   };
 
   const selectedVideo = genresData
@@ -139,90 +89,7 @@ export const Genres = () => {
         </motion.div>
 
         {videoId && selectedVideo ? (
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              minHeight: "60vh",
-            }}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              <Card
-                sx={{
-                  maxWidth: 800,
-                  width: "100%",
-                  boxShadow: "0 10px 30px rgba(0, 180, 216, 0.3)",
-                  borderRadius: "16px",
-                  overflow: "hidden",
-                  background: "rgba(20, 20, 30, 0.9)",
-                  color: "white",
-                }}
-              >
-                <CardMedia
-                  component="img"
-                  height="400"
-                  image={selectedVideo.image}
-                  alt={selectedVideo.title}
-                />
-                <CardContent>
-                  <Typography
-                    gutterBottom
-                    variant="h4"
-                    component="h2"
-                    sx={{
-                      fontWeight: 600,
-                      color: "#00b4d8",
-                    }}
-                  >
-                    {selectedVideo.title}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{ mb: 2, display: "flex", alignItems: "center" }}
-                  >
-                    Длительность:{" "}
-                    <Box component="span" sx={{ ml: 1, fontWeight: 500 }}>
-                      {selectedVideo.duration}
-                    </Box>
-                  </Typography>
-                  <Typography variant="body1" sx={{ mb: 3 }}>
-                    {selectedVideo.description}
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    sx={{
-                      background: "linear-gradient(45deg, #00b4d8, #0077b6)",
-                      "&:hover": {
-                        background: "linear-gradient(45deg, #0077b6, #00b4d8)",
-                      },
-                    }}
-                    onClick={() => navigate(`/preview?videoId=${videoId}`)}
-                  >
-                    Смотреть видео
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    sx={{
-                      ml: 2,
-                      color: "#00b4d8",
-                      borderColor: "#00b4d8",
-                      "&:hover": {
-                        borderColor: "#00b4d8",
-                      },
-                    }}
-                    onClick={() => navigate(-1)}
-                  >
-                    Назад к списку
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </Box>
+          <ViewVideoGenre videoId={videoId} selectedVideo={selectedVideo} />
         ) : (
           <>
             <AnimatePresence>
@@ -240,9 +107,7 @@ export const Genres = () => {
                       expandIcon={<ExpandMoreIcon sx={{ color: "#00b4d8" }} />}
                       sx={{
                         bgcolor: "rgba(0, 180, 216, 0.1)",
-                        "&:hover": {
-                          bgcolor: "rgba(0, 180, 216, 0.15)",
-                        },
+                        "&:hover": { bgcolor: "rgba(0, 180, 216, 0.15)" },
                       }}
                     >
                       <Box
@@ -253,12 +118,7 @@ export const Genres = () => {
                           justifyContent: "space-between",
                         }}
                       >
-                        <Typography
-                          variant="h5"
-                          sx={{
-                            fontWeight: 600,
-                          }}
-                        >
+                        <Typography variant="h5" sx={{ fontWeight: 600 }}>
                           {genreName}
                         </Typography>
                         <IconButton
@@ -276,48 +136,7 @@ export const Genres = () => {
                       {genreVideos.length > 0 ? (
                         <Grid container spacing={3}>
                           {genreVideos.map((video) => (
-                            <Grid item xs={12} sm={6} md={4} key={video.id}>
-                              <motion.div
-                                whileHover={{ y: -8 }}
-                                whileTap={{ scale: 0.98 }}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ duration: 0.3 }}
-                              >
-                                <VideoCard
-                                  onClick={() =>
-                                    handleVideoClick(video.id.toString())
-                                  }
-                                >
-                                  <CardMedia
-                                    component="img"
-                                    height="200"
-                                    image={video.image}
-                                    alt={video.title}
-                                    sx={{
-                                      borderBottom: "2px solid #00b4d8",
-                                    }}
-                                  />
-                                  <CardContent sx={{ flexGrow: 1 }}>
-                                    <Typography
-                                      gutterBottom
-                                      variant="h6"
-                                      sx={{
-                                        fontWeight: 600,
-                                      }}
-                                    >
-                                      {video.title}
-                                    </Typography>
-                                    <Typography
-                                      variant="body2"
-                                      sx={{ color: "rgba(255,255,255,0.7)" }}
-                                    >
-                                      {video.duration}
-                                    </Typography>
-                                  </CardContent>
-                                </VideoCard>
-                              </motion.div>
-                            </Grid>
+                            <CardVideoGenre video={video} />
                           ))}
                         </Grid>
                       ) : (
@@ -335,10 +154,7 @@ export const Genres = () => {
               <Typography
                 variant="h5"
                 gutterBottom
-                sx={{
-                  fontWeight: 600,
-                  color: "#00b4d8",
-                }}
+                sx={{ fontWeight: 600, color: "#00b4d8" }}
               >
                 Добавить жанр:
               </Typography>
@@ -359,9 +175,7 @@ export const Genres = () => {
                           cursor: "pointer",
                           background: "rgba(0, 180, 216, 0.2)",
                           color: "white",
-                          "&:hover": {
-                            background: "rgba(0, 180, 216, 0.3)",
-                          },
+                          "&:hover": { background: "rgba(0, 180, 216, 0.3)" },
                         }}
                       />
                     </motion.div>

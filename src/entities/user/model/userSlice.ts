@@ -9,12 +9,7 @@ interface UserState {
 }
 
 const initialState: UserState = {
-  user: {
-    _id: "dsds",
-    username: "kaka",
-    email: "boba@dsdds.dsd",
-    password: "dsdsd",
-  },
+  user: null,
   loading: false,
   error: null,
 };
@@ -22,33 +17,58 @@ const initialState: UserState = {
 export const createUser = createAsyncThunk(
   "user/create",
   async (
-    userData: { username: string; email: string; password: string },
-    { rejectWithValue }
+    userData: {
+      username: string;
+      email: string;
+      password: string;
+      genres: string[];
+    },
+    { dispatch, rejectWithValue },
   ) => {
     try {
       const response = await axios.post("/user/create_user", userData);
+      const { token } = response.data;
+
+      if (token) {
+        localStorage.setItem("auth_token", token);
+      }
+
+      dispatch(setUser(response.data));
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Registration failed"
+        error.response?.data?.message || "Registration failed",
       );
     }
-  }
+  },
 );
 
 export const getUser = createAsyncThunk(
   "user/get",
   async (
     credentials: { username: string; password: string },
-    { rejectWithValue }
+    { dispatch, rejectWithValue },
   ) => {
     try {
       const response = await axios.post("/user/sign-in", credentials);
-      return response.data;
+
+      const { accessToken, user } = response.data;
+
+      console.log(accessToken);
+      console.log(response);
+      console.log(user);
+
+      if (accessToken) {
+        localStorage.setItem("accessToken", accessToken);
+      }
+
+      dispatch(setUser(user));
+
+      return response.data.user;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || "Login failed");
     }
-  }
+  },
 );
 
 const userSlice = createSlice({
@@ -67,18 +87,6 @@ const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(createUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(createUser.fulfilled, (state, action) => {
-        state.loading = false;
-        state.user = action.payload;
-      })
-      .addCase(createUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
       .addCase(getUser.pending, (state) => {
         state.loading = true;
         state.error = null;
