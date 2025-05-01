@@ -20,6 +20,8 @@ import { MoviesBackground, ContentBox, StyledCard } from "./style";
 import LoadingCircle from "./ui/LoadingCircle";
 import ViewVideoGenre from "./ui/ViewVideoGenre";
 import ViewVideoPreview from "./ui/ViewVideoPreview";
+import axios from "../../shared/api/axios";
+import { IVideoFile } from "../../entities/video/model/types";
 
 const Preview = () => {
   const searchParams = new URLSearchParams(window.location.search);
@@ -29,27 +31,23 @@ const Preview = () => {
   const { user } = useSelector((state: RootState) => state.user);
   const { file } = useSelector((state: RootState) => state.video);
 
-  const [videoData, setVideoData] = useState<any>(null);
+  const [videoData, setVideoData] = useState<IVideoFile>();
   const [videoUrl, setVideoUrl] = useState("");
   const [showPlayer, setShowPlayer] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const getFile = async () => {
+    try {
+      const response = await axios.get(`/files/video/${videoId}`);
+      setVideoData(response.data);
+    } catch (error: any) {
+      console.log(error.response?.data?.message || "Failed to fetch files");
+    }
+  };
+
   useEffect(() => {
     if (videoId) {
-      // Загрузка данных видео из genresData
-      const foundVideo = genresData
-        .flatMap((genre) => genre.videos)
-        .find((video) => video.id.toString() === videoId);
-
-      if (foundVideo) {
-        setVideoData({
-          ...foundVideo,
-          status: "ready",
-          sourceUrl: `https://www.youtube.com/watch?v=${videoId}`,
-        });
-        setLoading(true);
-        setShowPlayer(true);
-      }
+      getFile();
     }
   }, [videoId]);
 

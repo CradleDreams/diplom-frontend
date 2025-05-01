@@ -36,7 +36,6 @@ const ViewVideoPreview = ({ file, handleBack, handleReset }: IVideoProps) => {
             sx={{
               mt: 3,
               p: 3,
-              width: 600,
               borderRadius: "12px",
               backgroundColor: "rgba(0,0,0,0.5)",
               color: "white",

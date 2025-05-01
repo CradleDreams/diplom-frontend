@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   Box,
@@ -16,35 +16,65 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { motion, AnimatePresence } from "framer-motion";
-import { genresData } from "../../shared/lib/data/genresData";
+import { genres } from "../../shared/lib/data/genresData";
 import { PageContainer, GenreAccordion } from "./style";
 import ViewVideoGenre from "./ui/ViewVideoGenre";
 import CardVideoGenre from "./ui/CardVideoGenre";
-
-// Все доступные жанры (основные + 8 дополнительных)
-const allGenres = [
-  ...genresData.map((g) => g.genre),
-  "Фантастика",
-  "Боевик",
-  "Мелодрама",
-  "Детектив",
-  "Вестерн",
-  "Мюзикл",
-  "Биография",
-  "Спорт",
-];
+import axios from "../../shared/api/axios";
+import { IVideoFile } from "../../entities/video/model/types";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../app/store";
+import { setUser } from "../../entities/user/model/userSlice";
 
 export const Genres = () => {
+  const { user } = useSelector((state: RootState) => state.user);
+  const dispatch = useDispatch<AppDispatch>();
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { genre: selectedGenre, videoId } = useParams();
+  const [files, setFiles] = useState<IVideoFile[]>([]);
+  const selectedVideo = files.find((file) => file._id === videoId);
 
   const [expanded, setExpanded] = useState<string | false>(
     selectedGenre || false,
   );
-  const [selectedGenres, setSelectedGenres] = useState<string[]>(
-    genresData.slice(0, 3).map((g) => g.genre),
-  );
+  // Используем жанры пользователя из Redux store
+  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+
+  const getFiles = async () => {
+    try {
+      const response = await axios.get(`/files/videos/user/${user?._id}`);
+      setFiles(response.data);
+    } catch (error: any) {
+      console.log(error.response?.data?.message || "Failed to fetch files");
+    }
+  };
+
+  const updateUser = async () => {
+    try {
+      if (!user) return;
+      const response = await axios.put(`/user`, {
+        _id: user?._id,
+        genres: selectedGenres,
+      });
+
+      dispatch(setUser(response.data));
+    } catch (error: any) {
+      console.log(error.response?.data?.message || "Failed to fetch files");
+    }
+  };
+
+  useEffect(() => {
+    getFiles();
+    if (user && user.genres) {
+      setSelectedGenres(user.genres);
+    }
+  }, []);
+
+  useEffect(() => {
+    updateUser();
+  }, [selectedGenres]);
 
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -54,16 +84,25 @@ export const Genres = () => {
   const handleAddGenre = (newGenre: string) => {
     if (!selectedGenres.includes(newGenre)) {
       setSelectedGenres([...selectedGenres, newGenre]);
+      // Здесь можно добавить запрос на обновление жанров пользователя
+      // updateUserGenres([...selectedGenres, newGenre]);
     }
   };
 
   const handleRemoveGenre = (genreToRemove: string) => {
-    setSelectedGenres(selectedGenres.filter((g) => g !== genreToRemove));
+    const updatedGenres = selectedGenres.filter((g) => g !== genreToRemove);
+    setSelectedGenres(updatedGenres);
+    // Здесь можно добавить запрос на обновление жанров пользователя
+    // updateUserGenres(updatedGenres);
   };
 
-  const selectedVideo = genresData
-    .flatMap((g) => g.videos)
-    .find((v) => v.id.toString() === videoId);
+  // Функция для получения видео по жанру
+  const getVideosByGenre = (genre: string) => {
+    return files.filter((file) => file.genre === genre);
+  };
+
+  // Доступные для добавления жанры (те, которых нет у пользователя)
+  const availableGenres = genres.filter((g) => !selectedGenres.includes(g));
 
   return (
     <PageContainer>
@@ -84,7 +123,7 @@ export const Genres = () => {
               textAlign: "center",
             }}
           >
-            Все жанры
+            Мои жанры
           </Typography>
         </motion.div>
 
@@ -94,8 +133,7 @@ export const Genres = () => {
           <>
             <AnimatePresence>
               {selectedGenres.map((genreName) => {
-                const genreData = genresData.find((g) => g.genre === genreName);
-                const genreVideos = genreData?.videos || [];
+                const genreVideos = getVideosByGenre(genreName);
 
                 return (
                   <GenreAccordion
@@ -136,13 +174,11 @@ export const Genres = () => {
                       {genreVideos.length > 0 ? (
                         <Grid container spacing={3}>
                           {genreVideos.map((video) => (
-                            <CardVideoGenre video={video} />
+                            <CardVideoGenre key={video._id} video={video} />
                           ))}
                         </Grid>
                       ) : (
-                        <Typography>
-                          Нет доступных видео в этом жанре
-                        </Typography>
+                        <Typography>Нет видео в этом жанре</Typography>
                       )}
                     </AccordionDetails>
                   </GenreAccordion>
@@ -150,18 +186,17 @@ export const Genres = () => {
               })}
             </AnimatePresence>
 
-            <Box sx={{ mt: 4 }}>
-              <Typography
-                variant="h5"
-                gutterBottom
-                sx={{ fontWeight: 600, color: "#00b4d8" }}
-              >
-                Добавить жанр:
-              </Typography>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                {allGenres
-                  .filter((g) => !selectedGenres.includes(g))
-                  .map((genre) => (
+            {availableGenres.length > 0 && (
+              <Box sx={{ mt: 4 }}>
+                <Typography
+                  variant="h5"
+                  gutterBottom
+                  sx={{ fontWeight: 600, color: "#00b4d8" }}
+                >
+                  Добавить жанр:
+                </Typography>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                  {availableGenres.map((genre) => (
                     <motion.div
                       key={genre}
                       whileHover={{ scale: 1.1 }}
@@ -180,8 +215,9 @@ export const Genres = () => {
                       />
                     </motion.div>
                   ))}
+                </Box>
               </Box>
-            </Box>
+            )}
           </>
         )}
       </Container>

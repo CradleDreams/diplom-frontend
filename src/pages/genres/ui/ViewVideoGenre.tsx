@@ -8,20 +8,22 @@ import {
 import { Box } from "@mui/system";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { IVideoFile } from "../../../entities/video/model/types";
 
 interface VideoProps {
   videoId: string;
-  selectedVideo: {
-    id: number;
-    title: string;
-    duration: string;
-    description: string;
-    image: string;
-  };
+  selectedVideo: IVideoFile;
 }
 const ViewVideoGenre = ({ videoId, selectedVideo }: VideoProps) => {
   const navigate = useNavigate();
 
+  // Функция для получения середины видео (для превью)
+  const getMidFrameUrl = (video: IVideoFile) => {
+    if (!video.hlsPath?.fileUrl) return "";
+    // Здесь должна быть логика получения середины видео
+    // Временное решение - возвращаем первую часть HLS
+    return video.hlsPath.fileUrl.replace(".m3u8", "_1.ts");
+  };
   return (
     <Box
       sx={{
@@ -50,7 +52,7 @@ const ViewVideoGenre = ({ videoId, selectedVideo }: VideoProps) => {
           <CardMedia
             component="img"
             height="400"
-            image={selectedVideo.image}
+            image={getMidFrameUrl(selectedVideo)}
             alt={selectedVideo.title}
           />
           <CardContent>
@@ -72,7 +74,7 @@ const ViewVideoGenre = ({ videoId, selectedVideo }: VideoProps) => {
               </Box>
             </Typography>
             <Typography variant="body1" sx={{ mb: 3 }}>
-              {selectedVideo.description}
+              {selectedVideo.summary}
             </Typography>
             <Button
               variant="contained"
