@@ -8,6 +8,7 @@ import { Genres } from "../pages/genres/Genres";
 import Preview from "../pages/preview/Preview";
 import { MainLayout } from "../shared/ui/Layour/MainLayout";
 import { theme } from "../shared/ui/Theme/theme";
+import Analytics from "../pages/analytics/Analytics";
 
 const App: React.FC = () => {
   return (
@@ -19,6 +20,7 @@ const App: React.FC = () => {
             <Route path="/" element={<MainLayout />}>
               <Route index element={<HomePage />} />
               <Route path="preview" element={<Preview />} />
+              <Route path="analytics" element={<Analytics />} />
               <Route path="genres" element={<Genres />} />
               <Route path="genres/:genre" element={<Genres />} />
               <Route path="genres/:genre/:videoId" element={<Genres />} />

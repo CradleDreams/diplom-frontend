@@ -84,6 +84,15 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 Genres
               </Button>
+
+              <Button
+                component={Link}
+                to="/analytics"
+                color="inherit"
+                sx={{ textTransform: "none" }}
+              >
+                Analytics
+              </Button>
             </>
           )}
 

@@ -84,6 +84,15 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 Genres
               </Button>
+
+              <Button
+                component={Link}
+                to="/analytics"
+                color="inherit"
+                sx={{ textTransform: "none" }}
+              >
+                Analytics
+              </Button>
             </>
           )}
 

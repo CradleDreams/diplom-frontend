@@ -57,6 +57,11 @@ export const Footer = () => {
                   Жанры
                 </Link>
               </motion.li>
+              <motion.li whileHover={{ x: 5 }}>
+                <Link href="/analytics" color="inherit" underline="hover">
+                  Аналитика
+                </Link>
+              </motion.li>
             </Box>
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
