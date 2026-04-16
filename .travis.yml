@@ -9,7 +9,7 @@ cache:
 
 addons:
   sonarcloud:
-    organization: "ametowartem"
+    organization: "cradledreams"
     token:
       secure: "$SONAR_TOKEN"
 
