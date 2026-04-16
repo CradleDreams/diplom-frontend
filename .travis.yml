@@ -1,0 +1,26 @@
+language: node_js
+
+node_js:
+  - "18"
+
+cache:
+  directories:
+    - node_modules
+
+addons:
+  sonarcloud:
+    organization: "ametowartem"
+    token:
+      secure: "$SONAR_TOKEN"
+
+install:
+  - npm install
+
+script:
+  - npm run lint
+
+jobs:
+  include:
+    - stage: SonarCloud
+      script:
+        - npx sonar-scanner
